@@ -11,15 +11,31 @@
 double draw_elo;
 double elo0, elo1;
 
-const double alpha = 0.05;		// alpha = max type I error (reached on elo = elo0)
-const double beta = 0.05;		// beta = max type II error for elo >= elo2 (reached on elo = elo2)
-
-void SPRT_stop(double pwin, double ploss, unsigned nb_simu, double *accept, unsigned *avg_stop)
+bool SPRT_one(double pwin, double ploss, const double llr_inc[3], unsigned *t)
 {
-	// LLR bounds
+	// LLR (Log Likelyhood Ratio)
+	const double alpha = 0.05;	// alpha = max type I error (reached on elo = elo0)
+	const double beta = 0.05;	// beta = max type II error for elo >= elo2 (reached on elo = elo2)
 	const double lower_bound = log(beta / (1-alpha));
 	const double upper_bound = log((1-beta) / alpha);
+	double LLR = 0;
 
+	for (*t = 0; *t < T; ++*t) {
+		const int X = game_result(pwin, ploss);
+		LLR += llr_inc[X];
+
+		if (LLR < lower_bound)
+			return false;
+		else if (LLR > upper_bound)
+			return true;
+	}
+
+	// We hit the cap: accept if LLR is closest to upper_bound
+	return (upper_bound - LLR) < (LLR - lower_bound);
+}
+
+void SPRT_average(double pwin, double ploss, unsigned nb_simu, double *accept, unsigned *avg_stop)
+{
 	// Calculate the probability laws under H0 and H1
 	double pwin0, ploss0, pdraw0;
 	double pwin1, ploss1, pdraw1;
@@ -38,34 +54,9 @@ void SPRT_stop(double pwin, double ploss, unsigned nb_simu, double *accept, unsi
 	uint64_t sum_stop = 0;		// sum of stopping times (to compute average)
 
 	for (unsigned simu = 0; simu < nb_simu; ++simu) {
-		/* Simulate one trajectory of T games
-		 * - Calculate the LLR random walk along the way
-		 * - early stop when LLR crosses a bound */
-		bool accepted;			// patch acceptation
-		double LLR = 0;			// log-likelyhood ratio
-		unsigned count[3] = {0,0,0};	// counts the number of: LOSS, DRAW, WIN (in this order)
-
 		unsigned t;
-		for (t = 0; t < T; ++t) {
-			const int X = game_result(pwin, ploss);
-			LLR += llr_inc[X];
-			++count[X];
-
-			if (LLR < lower_bound) {
-				accepted = false;
-				break;
-			} else if (LLR > upper_bound) {
-				accepted = true;
-				break;
-			}
-		}
-
-		if (t == T)
-			// We hit the cap: accept if LLR is closest to upper_bound
-			accepted = (upper_bound - LLR) < (LLR - lower_bound);
-
+		accept_cnt += SPRT_one(pwin, ploss, llr_inc, &t);
 		sum_stop += t;
-		accept_cnt += accepted;
 	}
 
 	*accept = (double)accept_cnt / nb_simu;
@@ -96,7 +87,7 @@ int main(int argc, char **argv)
 		double score = 0.5 + (pwin - ploss) / 2;
 		double ELO = -400 * log10(1/score - 1);
 
-		SPRT_stop(pwin, ploss, nb_simu, &accept, &avg_stop);
+		SPRT_average(pwin, ploss, nb_simu, &accept, &avg_stop);
 		printf("%.2f,%.2f,%.4f,%u\n", elo, ELO, accept, avg_stop);
 	}
 
