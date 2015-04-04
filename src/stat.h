@@ -5,15 +5,11 @@
 #include <math.h>
 
 // Bayeselo formula to get P(win) and P(Loss) as a function of elo, for a given drawelo
-extern void proba_elo(double elo, double draw_elo, double *pwin, double *ploss);
-
-// CDF and quantile function of the N(0,1) law
-extern double Phi(double x);
-extern double Phi_inv(double x);
+void proba_elo(double elo, double draw_elo, double *pwin, double *ploss);
 
 // Pseudo Random Number Generators
-extern uint64_t rand64();	// draw integers (uniformly) between 0 and 2^64-1
-extern double uniform();	// draw U(0,1)
+uint64_t rand64();	// draw integers (uniformly) between 0 and 2^64-1
+double uniform();	// draw U(0,1)
 
 // Scores are between -1 and 1 (loss=-1, draw=0, win=1)
 // So the elo<->score formulas are not the usual ones
@@ -21,5 +17,5 @@ double elo_to_score(double elo);
 double score_to_elo(double score);
 
 // Simulate a game result
-enum {LOSS=-1, DRAW=0, WIN=1};
-extern int game_result(double pwin, double ploss);
+enum {LOSS, DRAW, WIN};
+int game_result(double pwin, double ploss);

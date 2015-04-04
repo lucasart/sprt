@@ -5,13 +5,12 @@
 /* Use this value to cap the number of games (standard SPRT has no cap) */
 #define T	0xffffffff
 
-/* DRAW_ELO controls the proportion of draws. See proba_elo() function. To estimate this value, use
+/* BayesElo model. See proba_elo() function. To estimate draw_elo, use:
  * draw_elo = 200.log10[(1-w)/w.(1-l)/l]
  * where (w,l) are the win and loss ratio */
 double draw_elo;
-double elo0, elo1;	// expressed in BayesElo
+double elo0, elo1;
 
-/* Parametrization of the SPRT is here */
 const double alpha = 0.05;		// alpha = max type I error (reached on elo = elo0)
 const double beta = 0.05;		// beta = max type II error for elo >= elo2 (reached on elo = elo2)
 
@@ -27,16 +26,12 @@ void SPRT_stop(double pwin, double ploss, unsigned nb_simu, double *accept, unsi
 	proba_elo(elo0, draw_elo, &pwin0, &ploss0); pdraw0 = 1-pwin0-ploss0;
 	proba_elo(elo1, draw_elo, &pwin1, &ploss1); pdraw1 = 1-pwin1-ploss1;
 
-	// Calculate the log-likelyhood ratio increment for each game result Xt
+	// Calculate the log-likelyhood ratio increment for each game result X(t)
 	const double llr_inc[3] = {
 		log(ploss1 / ploss0),
 		log(pdraw1 / pdraw0),
 		log(pwin1 / pwin0)
 	};
-
-	// Calculate the true values of E(Xt) and V(Xt), and elo
-	const double mu = pwin-ploss, v = pwin+ploss - mu*mu;
-	const double elo = 200*log10(pwin/ploss*(1-ploss)/(1-pwin));
 
 	// Collect the risk and reward statistics along the way
 	unsigned accept_cnt = 0;	// Counter for H1 accepted
@@ -46,35 +41,30 @@ void SPRT_stop(double pwin, double ploss, unsigned nb_simu, double *accept, unsi
 		/* Simulate one trajectory of T games
 		 * - Calculate the LLR random walk along the way
 		 * - early stop when LLR crosses a bound */
-		bool accepted;					// patch acceptation
-		double LLR = 0;					// log-likelyhood ratio
+		bool accepted;			// patch acceptation
+		double LLR = 0;			// log-likelyhood ratio
 		unsigned count[3] = {0,0,0};	// counts the number of: LOSS, DRAW, WIN (in this order)
 
 		unsigned t;
 		for (t = 0; t < T; ++t) {
 			const int X = game_result(pwin, ploss);
-			LLR += llr_inc[X+1];
-			++count[X+1];
+			LLR += llr_inc[X];
+			++count[X];
 
 			if (LLR < lower_bound) {
-				// patch rejected by early stopping
 				accepted = false;
-				sum_stop += t;
 				break;
 			} else if (LLR > upper_bound) {
-				// patch accepted by early stopping
 				accepted = true;
-				sum_stop += t;
 				break;
 			}
 		}
 
-		if (t == T) {
-			// patch was not early stopped: accept H1 if LLR is closest to upper_bound
+		if (t == T)
+			// We hit the cap: accept if LLR is closest to upper_bound
 			accepted = (upper_bound - LLR) < (LLR - lower_bound);
-			sum_stop += T;
-		}
 
+		sum_stop += t;
 		accept_cnt += accepted;
 	}
 
@@ -85,8 +75,8 @@ void SPRT_stop(double pwin, double ploss, unsigned nb_simu, double *accept, unsi
 int main(int argc, char **argv)
 {
 	if (argc != 8) {
-		puts("7 parameters requires: elo_min elo_max elo_step nb_simu draw_elo elo0 elo1\n");
-		exit(EXIT_FAILURE);
+		puts("7 parameters required: elo_min elo_max elo_step nb_simu draw_elo elo0 elo1\n");
+		return EXIT_FAILURE;
 	}
 
 	const double elo_min = atof(argv[1]), elo_max = atof(argv[2]), elo_step = atof(argv[3]);
@@ -109,4 +99,6 @@ int main(int argc, char **argv)
 		SPRT_stop(pwin, ploss, nb_simu, &accept, &avg_stop);
 		printf("%.2f,%.2f,%.4f,%u\n", elo, ELO, accept, avg_stop);
 	}
+
+	return EXIT_SUCCESS;
 }

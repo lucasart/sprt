@@ -9,9 +9,7 @@ testing, using the BayesElo model.
 * On other POSIX compliant platforms, I don't expect many problems
 * Otherwise, requires a standard compliant C99 compiler (eg. mingw for Windows)
 
-### Usage
-
-**Syntax**
+### Syntax
 
     sprt elo_min elo_max elo_step nb_simu draw_elo elo0 elo1
 
@@ -34,7 +32,7 @@ very fast. To perform a truncated SPRT, modify this line of code:
 Decision will then be based on which bound is closest to the current LLR
 (log-likelyhood ratio).
 
-**Sample session**
+### Example
 
     $ ./sprt -2 6 1 10000 250 0 4
     BayesELO,ELO,P(pass),avg(stop)
