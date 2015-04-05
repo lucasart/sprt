@@ -77,18 +77,18 @@ int main(int argc, char **argv)
 	elo1 = atof(argv[7]);
 
 	// Print header
-	puts("BayesELO,ELO,P(pass),avg(stop)");
+	puts("ELO,P(pass),avg(stop)");
 
 	for (double elo = elo_min; elo <= elo_max; elo += elo_step) {
 		double pwin, ploss, accept;
 		unsigned avg_stop;
 
-		proba_elo(elo, draw_elo, &pwin, &ploss);
-		double score = 0.5 + (pwin - ploss) / 2;
-		double ELO = -400 * log10(1/score - 1);
+		proba_elo(elo / scale(draw_elo), draw_elo, &pwin, &ploss);
+		double score = 0.5 + (pwin - ploss) / 2.0;
+		double ELO = -400.0 * log10(1.0 / score - 1.0);
 
 		SPRT_average(pwin, ploss, nb_simu, &accept, &avg_stop);
-		printf("%.2f,%.2f,%.4f,%u\n", elo, ELO, accept, avg_stop);
+		printf("%.2f,%.4f,%u\n", elo, accept, avg_stop);
 	}
 
 	return EXIT_SUCCESS;

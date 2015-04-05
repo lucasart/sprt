@@ -2,19 +2,14 @@
 
 void proba_elo(double elo, double draw_elo, double *pwin, double *ploss)
 {
-	*pwin  = 1 / (1 + pow(10, (-elo + draw_elo) / 400));
-	*ploss = 1 / (1 + pow(10, (elo + draw_elo) / 400));
+	*pwin  = 1 / (1 + pow(10.0, (-elo + draw_elo) / 400.0));
+	*ploss = 1 / (1 + pow(10.0, (elo + draw_elo) / 400.0));
 }
 
-double elo_to_score(double elo)
+double scale(double draw_elo)
 {
-	return 2/(1+pow(10,-elo/400)) - 1;
-}
-
-double score_to_elo(double score)
-{
-	assert(0 < score && score < 1);
-	return -400*log10(2/(1+score) - 1);
+	const double x = pow(10.0, -draw_elo / 400.0);
+	return 4.0 * x / ((1.0 + x) * (1.0 + x));
 }
 
 uint64_t rotate(uint64_t x, uint64_t k)
