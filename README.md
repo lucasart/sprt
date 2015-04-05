@@ -11,7 +11,7 @@ testing, using the BayesElo model.
 
 ### Syntax
 
-    sprt elo_min elo_max elo_step nb_simu draw_elo elo0 elo1
+`sprt elo_min elo_max elo_step nb_simu draw_elo elo0 elo1`
 
 * `elo_min`, `elo_max`, `elo_step`: Range of elo values to test.
 * `nb_simu`: Number of simulation to run for every step
@@ -34,12 +34,12 @@ Decision will then be based on which bound is closest to the current LLR
 ### Example
 
     $ ./sprt -2 6 2 10000 250 0 4
-    ELO,P(pass),avg(stop)
-    -2.00,0.0007,16959
-    0.00,0.0516,40253
-    2.00,0.8581,51495
-    4.00,0.9987,19854
-    6.00,1.0000,11554
+    ELO,BayesElo,P(pass),avg(stop)
+    -2.00,-3.23,0.0007,16959
+    0.00,0.00,0.0516,40253
+    2.00,3.23,0.8581,51495
+    4.00,6.45,0.9987,19854
+    6.00,9.68,1.0000,11554
 
 For example, at +2.00 ELO, and for draw_elo = 250, the SPRT(elo0=0,elo1=4) test
 has 85.8% probability to pass.
