@@ -1,9 +1,9 @@
 #include "stat.h"
 
-void proba_elo(double bayes_elo, double draw_elo, double& pwin, double& ploss)
+void Probability::set(double bayes_elo, double draw_elo)
 {
-	pwin  = 1 / (1 + std::pow(10.0, (-bayes_elo + draw_elo) / 400.0));
-	ploss = 1 / (1 + std::pow(10.0, ( bayes_elo + draw_elo) / 400.0));
+	win = 1 / (1 + std::pow(10.0, (-bayes_elo + draw_elo) / 400.0));
+	loss = 1 / (1 + std::pow(10.0, (bayes_elo + draw_elo) / 400.0));
 }
 
 double scale(double draw_elo)
@@ -21,15 +21,13 @@ uint64_t rotate(uint64_t x, uint64_t k)
 
 }	// namespace
 
-PRNG::PRNG(double _pwin, double _ploss)
+PRNG::PRNG(const Probability& _p)
 {
 	a = 0x46dd577ff603b540ULL;
 	b = 0xc4077bddfacf987bULL;
 	c = 0xbbf4d93b7200e858ULL;
 	d = 0xd3e075cfd449bb1eULL;
-
-	pwin = _pwin;
-	ploss = _ploss;
+	p = _p;
 }
 
 uint64_t PRNG::rand64()
@@ -49,5 +47,5 @@ double PRNG::uniform()
 int PRNG::game_result()
 {
 	double x = uniform();
-	return x < pwin ? WIN : (x < pwin + ploss ? LOSS : DRAW);
+	return x < p.win ? WIN : (x < p.win + p.loss ? LOSS : DRAW);
 }

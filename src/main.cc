@@ -6,7 +6,7 @@
 
 struct Result {
 	double elo, bayes_elo;
-	double pwin, ploss;
+	Probability p;
 	double pass, stop;
 };
 
@@ -25,7 +25,7 @@ bool SPRT_one(const double llr_inc[3], PRNG& prng, unsigned& t)
 
 void SPRT_average(unsigned nb_simu, const double llr_inc[3], Result& r)
 {
-	PRNG prng(r.pwin, r.ploss);
+	PRNG prng(r.p);
 
 	unsigned pass_cnt = 0;
 	uint64_t sum_stop = 0;
@@ -54,16 +54,15 @@ int main(int argc, char **argv)
 	const double bayes_elo1 = atof(argv[7]);
 
 	// Calculate probability laws under H0 and H1
-	double pwin0, ploss0, pdraw0;
-	double pwin1, ploss1, pdraw1;
-	proba_elo(bayes_elo0, draw_elo, pwin0, ploss0), pdraw0 = 1 - pwin0 - ploss0;
-	proba_elo(bayes_elo1, draw_elo, pwin1, ploss1), pdraw1 = 1 - pwin1 - ploss1;
+	Probability p0, p1;
+	p0.set(bayes_elo0, draw_elo);
+	p1.set(bayes_elo1, draw_elo);
 
 	// Pre-calculate LLR increment for each game result
 	const double llr_inc[3] = {
-		std::log(ploss1 / ploss0),
-		std::log(pdraw1 / pdraw0),
-		std::log(pwin1 / pwin0)
+		std::log(p1.loss / p0.loss),
+		std::log(p1.draw() / p0.draw()),
+		std::log(p1.win / p0.win)
 	};
 
 	// Prepare vector of results
@@ -72,7 +71,7 @@ int main(int argc, char **argv)
 		Result r;
 		r.elo = elo;
 		r.bayes_elo = r.elo / scale(draw_elo);
-		proba_elo(r.bayes_elo, draw_elo, r.pwin, r.ploss);
+		r.p.set(r.bayes_elo, draw_elo);
 		res.push_back(r);
 	}
 
@@ -85,15 +84,15 @@ int main(int argc, char **argv)
 		thread.join();
 
 	// Display results
-	std::cout << std::setw(10) << "ELO" << std::setw(10) << "BayesElo"
-		<< std::setw(10) << "P(win)" << std::setw(10) << "P(loss)"
+	std::cout << std::setw(8) << "Elo" << std::setw(10) << "BayesElo"
+		<< std::setw(10) << "P(win)" << std::setw(10) << "P(loss)" << std::setw(10) << "P(draw)"
 		<< std::setw(10) << "P(pass)" << std::setw(10) << "avg(stop)"
 		<< std::endl;
 	for (auto& r : res)
 		std::cout << std::fixed << std::setprecision(2)
-			<< std::setw(10) << r.elo << std::setw(10) << r.bayes_elo
-			<< std::setprecision(4) << std::setw(10) << r.pwin << std::setw(10)
-			<< r.ploss << std::setw(10) << r.pass
+			<< std::setw(8) << r.elo << std::setw(10) << r.bayes_elo
+			<< std::setprecision(4) << std::setw(10) << r.p.win << std::setw(10)
+			<< r.p.loss << std::setw(10) << r.p.draw() << std::setw(10) << r.pass
 			<< std::setprecision(0) << std::setw(10) << r.stop
 			<< std::endl;
 

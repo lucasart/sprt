@@ -26,12 +26,12 @@ Instead, modify the bounds (elo0,elo1).
 ### Example
 
 	$ ./sprt -2 6 2 10000 250 0 4
-	       ELO  BayesElo    P(win)   P(loss)   P(pass) avg(stop)
-	     -2.00     -3.23    0.1888    0.1946    0.0007     16960
-	      0.00      0.00    0.1917    0.1917    0.0502     39712
-	      2.00      3.23    0.1946    0.1888    0.8583     52180
-	      4.00      6.45    0.1975    0.1860    0.9990     20017
-	      6.00      9.68    0.2005    0.1832    1.0000     11631
+	     Elo  BayesElo    P(win)   P(loss)   P(draw)   P(pass) avg(stop)
+	   -2.00     -3.23    0.1888    0.1946    0.6166    0.0007     16961
+	    0.00      0.00    0.1917    0.1917    0.6166    0.0502     39713
+	    2.00      3.23    0.1946    0.1888    0.6166    0.8583     52181
+	    4.00      6.45    0.1975    0.1860    0.6165    0.9990     20018
+	    6.00      9.68    0.2005    0.1832    0.6163    1.0000     11632
 
 For example, +2.00 ELO with draw_elo = 250 corresponds to +3.23 BayesElo, and the
 SPRT(elo0=0,elo1=4) test has 85.8% probability to pass.
