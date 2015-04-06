@@ -15,9 +15,11 @@ enum {LOSS, DRAW, WIN};
 // Game result generator
 class PRNG {
 	uint64_t a, b, c, d;
+	double pwin, ploss;
+
 	uint64_t rand64();
 	double uniform();
 public:
-	PRNG();
-	int game_result(double pwin, double ploss);
+	PRNG(double _pwin, double _ploss);
+	int game_result();
 };

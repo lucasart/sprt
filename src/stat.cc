@@ -21,12 +21,15 @@ uint64_t rotate(uint64_t x, uint64_t k)
 
 }	// namespace
 
-PRNG::PRNG()
+PRNG::PRNG(double _pwin, double _ploss)
 {
 	a = 0x46dd577ff603b540ULL;
 	b = 0xc4077bddfacf987bULL;
 	c = 0xbbf4d93b7200e858ULL;
 	d = 0xd3e075cfd449bb1eULL;
+
+	pwin = _pwin;
+	ploss = _ploss;
 }
 
 uint64_t PRNG::rand64()
@@ -43,7 +46,7 @@ double PRNG::uniform()
 	return (double)rand64() / 0xffffffffffffffffULL;
 }
 
-int PRNG::game_result(double pwin, double ploss)
+int PRNG::game_result()
 {
 	double x = uniform();
 	return x < pwin ? WIN : (x < pwin + ploss ? LOSS : DRAW);

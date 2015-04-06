@@ -14,7 +14,7 @@ struct Result {
 	double accept, stop;
 };
 
-bool SPRT_one(double pwin, double ploss, const double llr_inc[3], PRNG& prng, unsigned& t)
+bool SPRT_one(const double llr_inc[3], PRNG& prng, unsigned& t)
 {
 	// LLR (Log Likelyhood Ratio)
 	const double alpha = 0.05;	// alpha = max type I error (reached on elo = elo0)
@@ -24,7 +24,7 @@ bool SPRT_one(double pwin, double ploss, const double llr_inc[3], PRNG& prng, un
 	double LLR = 0;
 
 	for (t = 0; t < T; ++t) {
-		LLR += llr_inc[prng.game_result(pwin, ploss)];
+		LLR += llr_inc[prng.game_result()];
 
 		if (LLR < lower_bound)
 			return false;
@@ -38,13 +38,14 @@ bool SPRT_one(double pwin, double ploss, const double llr_inc[3], PRNG& prng, un
 
 void SPRT_average(unsigned nb_simu, const double llr_inc[3], Result& r)
 {
-	PRNG prng;
+	PRNG prng(r.pwin, r.ploss);
+
 	unsigned accept_cnt = 0;
 	uint64_t sum_stop = 0;
 
 	for (unsigned simu = 0; simu < nb_simu; ++simu) {
 		unsigned t;
-		accept_cnt += SPRT_one(r.pwin, r.ploss, llr_inc, prng, t);
+		accept_cnt += SPRT_one(llr_inc, prng, t);
 		sum_stop += t;
 	}
 
