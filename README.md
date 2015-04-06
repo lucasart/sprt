@@ -33,13 +33,13 @@ Decision will then be based on which bound is closest to the current LLR
 
 ### Example
 
-    $ ./sprt -2 6 2 10000 250 0 4
-    ELO,BayesElo,P(pass),avg(stop)
-    -2.00,-3.23,0.0007,16959
-    0.00,0.00,0.0516,40253
-    2.00,3.23,0.8581,51495
-    4.00,6.45,0.9987,19854
-    6.00,9.68,1.0000,11554
+	$ ./sprt -2 6 2 10000 250 0 4
+	       ELO  BayesElo    P(win)   P(loss)   P(pass) avg(stop)
+	     -2.00     -3.23    0.1888    0.1946    0.0007     16960
+	      0.00      0.00    0.1917    0.1917    0.0502     39712
+	      2.00      3.23    0.1946    0.1888    0.8583     52180
+	      4.00      6.45    0.1975    0.1860    0.9990     20017
+	      6.00      9.68    0.2005    0.1832    1.0000     11631
 
-For example, at +2.00 ELO, and for draw_elo = 250, the SPRT(elo0=0,elo1=4) test
-has 85.8% probability to pass.
+For example, +2.00 ELO with draw_elo = 250 corresponds to +3.23 BayesElo, and the
+SPRT(elo0=0,elo1=4) test has 85.8% probability to pass.

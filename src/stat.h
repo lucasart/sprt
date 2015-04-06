@@ -1,17 +1,23 @@
 #pragma once
-#include <inttypes.h>
-#include <stdbool.h>
-#include <assert.h>
-#include <math.h>
+#include <cstdint>
+#include <cassert>
+#include <cmath>
 
-// Bayeselo formula to get P(win) and P(Loss) as a function of elo, for a given drawelo
-void proba_elo(double elo, double draw_elo, double *pwin, double *ploss);
+// (bayes_elo, draw_elo) -> (P(win), P(loss))
+void proba_elo(double bayes_elo, double draw_elo, double& pwin, double& ploss);
+
+// (P(win), P(loss)) -> (bayes_elo, draw_elo) cannot be done analytically
+// Instead use scale formula (first order approximation valid for small elo values)
 double scale(double draw_elo);	// elo = scale * bayeselo (approx for small abs(elo))
 
-// Pseudo Random Number Generators
-uint64_t rand64();	// draw integers (uniformly) between 0 and 2^64-1
-double uniform();	// draw U(0,1)
-
-// Simulate a game result
 enum {LOSS, DRAW, WIN};
-int game_result(double pwin, double ploss);
+
+// Game result generator
+class PRNG {
+	uint64_t a, b, c, d;
+	uint64_t rand64();
+	double uniform();
+public:
+	PRNG();
+	int game_result(double pwin, double ploss);
+};
