@@ -8,6 +8,14 @@ struct Result {
 	double elo, bayes_elo;
 	Probability p;
 	double pass, stop;
+
+	void print() const {
+		std::cout << std::fixed << std::setprecision(2)
+			<< std::setw(8) << elo << std::setw(10) << bayes_elo
+			<< std::setprecision(4) << std::setw(10) << p.win << std::setw(10)
+			<< p.loss << std::setw(10) << p.draw() << std::setw(10) << pass
+			<< std::setprecision(0) << std::setw(10) << stop << std::endl;
+	}
 };
 
 bool SPRT_one(const double llr_inc[3], PRNG& prng, unsigned& t)
@@ -89,12 +97,7 @@ int main(int argc, char **argv)
 		<< std::setw(10) << "P(pass)" << std::setw(10) << "avg(stop)"
 		<< std::endl;
 	for (auto& r : res)
-		std::cout << std::fixed << std::setprecision(2)
-			<< std::setw(8) << r.elo << std::setw(10) << r.bayes_elo
-			<< std::setprecision(4) << std::setw(10) << r.p.win << std::setw(10)
-			<< r.p.loss << std::setw(10) << r.p.draw() << std::setw(10) << r.pass
-			<< std::setprecision(0) << std::setw(10) << r.stop
-			<< std::endl;
+		r.print();
 
 	return EXIT_SUCCESS;
 }
