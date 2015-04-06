@@ -1,17 +1,13 @@
 #include <iostream>
 #include <iomanip>
-#include <cstdlib>
 #include <vector>
 #include <thread>
 #include "stat.h"
 
-/* Use this value to cap the number of games (standard SPRT has no cap) */
-#define T	0xffffffff
-
 struct Result {
 	double elo, bayes_elo;
 	double pwin, ploss;
-	double accept, stop;
+	double pass, stop;
 };
 
 bool SPRT_one(const double llr_inc[3], PRNG& prng, unsigned& t)
@@ -23,7 +19,8 @@ bool SPRT_one(const double llr_inc[3], PRNG& prng, unsigned& t)
 	const double upper_bound = std::log((1-beta) / alpha);
 	double LLR = 0;
 
-	for (t = 0; t < T; ++t) {
+	// Run an SPRT test (loop look infinite but terminates eventually with probability 1)
+	for (t = 0; ; ++t) {
 		LLR += llr_inc[prng.game_result()];
 
 		if (LLR < lower_bound)
@@ -31,25 +28,22 @@ bool SPRT_one(const double llr_inc[3], PRNG& prng, unsigned& t)
 		else if (LLR > upper_bound)
 			return true;
 	}
-
-	// We hit the cap: accept if LLR is closest to upper_bound
-	return upper_bound - LLR < LLR - lower_bound;
 }
 
 void SPRT_average(unsigned nb_simu, const double llr_inc[3], Result& r)
 {
 	PRNG prng(r.pwin, r.ploss);
 
-	unsigned accept_cnt = 0;
+	unsigned pass_cnt = 0;
 	uint64_t sum_stop = 0;
 
 	for (unsigned simu = 0; simu < nb_simu; ++simu) {
 		unsigned t;
-		accept_cnt += SPRT_one(llr_inc, prng, t);
+		pass_cnt += SPRT_one(llr_inc, prng, t);
 		sum_stop += t;
 	}
 
-	r.accept = (double)accept_cnt / nb_simu;
+	r.pass = (double)pass_cnt / nb_simu;
 	r.stop = (double)sum_stop / nb_simu;
 }
 
@@ -57,7 +51,7 @@ int main(int argc, char **argv)
 {
 	// Parse parameters
 	if (argc != 8) {
-		std::cout << "7 parameters required: elo_min elo_max elo_step nb_simu draw_elo bayes_elo0 bayes_elo1" << std::endl;
+		std::cout << "Syntax:\nsprt elo_min elo_max elo_step nb_simu draw_elo bayes_elo0 bayes_elo1" << std::endl;
 		return EXIT_FAILURE;
 	}
 	const double elo_min = atof(argv[1]), elo_max = atof(argv[2]), elo_step = atof(argv[3]);
@@ -105,7 +99,8 @@ int main(int argc, char **argv)
 	for (auto& r : res)
 		std::cout << std::fixed << std::setprecision(2)
 			<< std::setw(10) << r.elo << std::setw(10) << r.bayes_elo
-			<< std::setprecision(4) << std::setw(10) << r.pwin << std::setw(10) << r.ploss << std::setw(10) << r.accept
+			<< std::setprecision(4) << std::setw(10) << r.pwin << std::setw(10)
+			<< r.ploss << std::setw(10) << r.pass
 			<< std::setprecision(0) << std::setw(10) << r.stop
 			<< std::endl;
 

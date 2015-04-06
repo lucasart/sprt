@@ -21,15 +21,7 @@ are the win and loss ratio
 * `elo0`, `elo1`: Hypothesis H0 and H1 of the test, **expressed in BayesElo**
 
 Note that alpha and beta are always 5%. Do not change these values in the code.
-Instead, play with the bounds (elo0,elo1).
-
-Note also that SPRT is an infinite test, although probability of long runs
-decays very fast. To perform a truncated SPRT, modify this line of code:
-
-    #define T       128000	// truncate at 128k games
-
-Decision will then be based on which bound is closest to the current LLR
-(log-likelyhood ratio).
+Instead, modify the bounds (elo0,elo1).
 
 ### Example
 
