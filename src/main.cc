@@ -13,21 +13,14 @@ struct Result {
 bool SPRT_one(const double llr_inc[3], PRNG& prng, unsigned& t)
 {
 	// LLR (Log Likelyhood Ratio)
-	const double alpha = 0.05;	// alpha = max type I error (reached on elo = elo0)
-	const double beta = 0.05;	// beta = max type II error for elo >= elo1 (reached on elo = elo1)
-	const double lower_bound = std::log(beta / (1-alpha));
-	const double upper_bound = std::log((1-beta) / alpha);
+	const double bound = std::log((1-0.05) / 0.05);
 	double LLR = 0;
 
 	// Run an SPRT test (loop look infinite but terminates eventually with probability 1)
-	for (t = 0; ; ++t) {
+	for (t = 0; std::abs(LLR) < bound; ++t)
 		LLR += llr_inc[prng.game_result()];
 
-		if (LLR < lower_bound)
-			return false;
-		else if (LLR > upper_bound)
-			return true;
-	}
+	return LLR >= bound;
 }
 
 void SPRT_average(unsigned nb_simu, const double llr_inc[3], Result& r)
