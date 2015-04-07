@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "stat.h"
 
 void Probability::set(double bayes_elo, double draw_elo)
@@ -6,10 +7,35 @@ void Probability::set(double bayes_elo, double draw_elo)
 	loss = 1 / (1 + std::pow(10.0, (bayes_elo + draw_elo) / 400.0));
 }
 
-double scale(double draw_elo)
+double Probability::elo() const
 {
-	const double x = std::pow(10.0, -draw_elo / 400.0);
-	return 4.0 * x / ((1.0 + x) * (1.0 + x));
+	const double score = win + 0.5 * draw();
+	return -400.0 * std::log10(1.0 / score - 1.0);
+}
+
+double invert(double elo, double draw_elo, double eps)
+{
+	// Establish bounds
+	double x;
+	Probability p;
+	for (x = elo; ; x += x) {
+		p.set(x, draw_elo);
+		if (std::abs(p.elo()) >= std::abs(elo))
+			break;
+	}
+
+	// Dichotomy
+	double lbound = std::min(0.5 * x, x);
+	double ubound = std::max(0.5 * x, x);
+	while (ubound - lbound > eps) {
+		x = 0.5 * (lbound + ubound);
+		p.set(x, draw_elo);
+		if (elo < p.elo())
+			ubound = x;
+		else
+			lbound = x;
+	}
+	return x;
 }
 
 namespace {

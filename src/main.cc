@@ -56,10 +56,8 @@ int main(int argc, char **argv)
 		return EXIT_FAILURE;
 	}
 	const double elo_min = atof(argv[1]), elo_max = atof(argv[2]), elo_step = atof(argv[3]);
+	const double draw_elo = atof(argv[5]), bayes_elo0 = atof(argv[6]), bayes_elo1 = atof(argv[7]);
 	const unsigned nb_simu = atoll(argv[4]);
-	const double draw_elo = atof(argv[5]);
-	const double bayes_elo0 = atof(argv[6]);
-	const double bayes_elo1 = atof(argv[7]);
 
 	// Calculate probability laws under H0 and H1
 	Probability p0, p1;
@@ -78,7 +76,7 @@ int main(int argc, char **argv)
 	for (double elo = elo_min; elo <= elo_max; elo += elo_step) {
 		Result r;
 		r.elo = elo;
-		r.bayes_elo = r.elo / scale(draw_elo);
+		r.bayes_elo = invert(r.elo, draw_elo);
 		r.p.set(r.bayes_elo, draw_elo);
 		res.push_back(r);
 	}

@@ -6,13 +6,14 @@
 struct Probability {
 	double win, loss;
 	double draw() const { return 1.0 - win - loss; }
+	double elo() const;
 	void set(double bayes_elo, double draw_elo);
 };
 
-/* Probability -> (bayes_elo, draw_elo) cannot be done analytically
- * Instead use scale formula (first order approximation valid for small elo
- * values) */
-double scale(double draw_elo);	// elo = scale * bayeselo (approx for small abs(elo))
+/* Invert the BayesElo model to get: bayes_elo = f(elo, draw_elo). This cannot
+ * be done analytically, so we need to do it by dichotomy (eps is the
+ * precision required). */
+double invert(double elo, double draw_elo, double eps = 1e-4);
 
 enum {LOSS, DRAW, WIN};
 
