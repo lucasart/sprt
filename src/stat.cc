@@ -65,13 +65,8 @@ uint64_t PRNG::rand64()
 	return d = e + a;
 }
 
-double PRNG::uniform()
-{
-	return (double)rand64() / 0xffffffffffffffffULL;
-}
-
 int PRNG::game_result()
 {
-	double x = uniform();
+	double x = (double)rand64() / 0xffffffffffffffffULL;
 	return x < p.win ? WIN : (x < p.win + p.loss ? LOSS : DRAW);
 }

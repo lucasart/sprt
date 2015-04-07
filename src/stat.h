@@ -20,9 +20,7 @@ enum {LOSS, DRAW, WIN};
 class PRNG {
 	uint64_t a, b, c, d;
 	Probability p;
-
 	uint64_t rand64();
-	double uniform();
 public:
 	PRNG(const Probability& p);
 	int game_result();
