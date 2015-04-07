@@ -9,6 +9,12 @@ struct Result {
 	Probability p;
 	double pass, stop;
 
+	Result(double _elo, double draw_elo) {
+		elo = _elo;
+		bayes_elo = invert(elo, draw_elo);
+		p.set(bayes_elo, draw_elo);
+	}
+
 	void print() const {
 		std::cout << std::fixed << std::setprecision(2)
 			<< std::setw(8) << elo << std::setw(10) << bayes_elo
@@ -73,13 +79,8 @@ int main(int argc, char **argv)
 
 	// Prepare vector of results
 	std::vector<Result> res;
-	for (double elo = elo_min; elo <= elo_max; elo += elo_step) {
-		Result r;
-		r.elo = elo;
-		r.bayes_elo = invert(r.elo, draw_elo);
-		r.p.set(r.bayes_elo, draw_elo);
-		res.push_back(r);
-	}
+	for (double elo = elo_min; elo <= elo_max; elo += elo_step)
+		res.push_back(Result(elo, draw_elo));
 
 	// Run iterations concurrently
 	std::vector<std::thread> threads;
