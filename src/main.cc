@@ -83,9 +83,8 @@ int main(int argc, char **argv)
 
 	// Run iterations concurrently
 	std::vector<std::thread> threads;
-	auto it = res.begin();
-	for (double elo = elo_min; elo <= elo_max; elo += elo_step)
-		threads.push_back(std::thread(SPRT_average, nb_simu, llr_inc, std::ref(*it++)));
+	for (auto& r : res)
+		threads.push_back(std::thread(SPRT_average, nb_simu, llr_inc, std::ref(r)));
 	for (auto& thread : threads)
 		thread.join();
 
