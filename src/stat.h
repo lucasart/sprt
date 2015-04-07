@@ -1,6 +1,5 @@
 #pragma once
 #include <cstdint>
-#include <cassert>
 #include <cmath>
 
 struct Probability {
@@ -10,9 +9,9 @@ struct Probability {
 	void set(double bayes_elo, double draw_elo);
 };
 
-/* Invert the BayesElo model to get: bayes_elo = f(elo, draw_elo). This cannot
- * be done analytically, so we need to do it by dichotomy (eps is the
- * precision required). */
+// Invert the BayesElo model to get: bayes_elo = f(elo, draw_elo). This cannot
+// be done analytically, so we need to do it by dichotomy (eps is the precision
+// required).
 double invert(double elo, double draw_elo, double eps = 1e-4);
 
 enum {LOSS, DRAW, WIN};
