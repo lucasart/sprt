@@ -78,24 +78,24 @@ int main(int argc, char **argv)
 	};
 
 	// Prepare vector of results
-	std::vector<Result> res;
+	std::vector<Result> results;
 	for (double elo = elo_min; elo <= elo_max; elo += elo_step)
-		res.push_back(Result(elo, draw_elo));
+		results.push_back(Result(elo, draw_elo));
 
 	// Run iterations concurrently
 	std::vector<std::thread> threads;
-	for (auto& r : res)
+	for (auto& r : results)
 		threads.push_back(std::thread(SPRT_average, nb_simu, llr_inc, std::ref(r)));
-	for (auto& thread : threads)
-		thread.join();
 
 	// Display results
-	std::cout << std::setw(8) << "Elo" << std::setw(10) << "BayesElo"
-		<< std::setw(10) << "P(win)" << std::setw(10) << "P(loss)" << std::setw(10) << "P(draw)"
-		<< std::setw(10) << "P(pass)" << std::setw(10) << "avg(stop)"
-		<< std::endl;
-	for (auto& r : res)
-		r.print();
+        std::cout << std::setw(8) << "Elo" << std::setw(10) << "BayesElo"
+                << std::setw(10) << "P(win)" << std::setw(10) << "P(loss)" << std::setw(10) << "P(draw)"
+                << std::setw(10) << "P(pass)" << std::setw(10) << "avg(stop)"
+                << std::endl;
+	for (size_t i = 0; i < results.size(); ++i) {
+		threads[i].join();
+		results[i].print();
+	}
 
 	return EXIT_SUCCESS;
 }
