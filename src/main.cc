@@ -31,7 +31,7 @@ struct Result {
 	}
 };
 
-bool SPRT_one(const std::vector<double>& llr_inc, PRNG& prng, unsigned& t)
+bool SPRT_one(const double llr_inc[3], PRNG& prng, unsigned& t)
 {
 	// LLR (Log Likelyhood Ratio)
 	const double bound = std::log((1-0.05) / 0.05);
@@ -44,7 +44,7 @@ bool SPRT_one(const std::vector<double>& llr_inc, PRNG& prng, unsigned& t)
 	return LLR >= bound;
 }
 
-void SPRT_average(unsigned nb_simu, const std::vector<double>& llr_inc, Result& r)
+void SPRT_average(unsigned nb_simu, const double llr_inc[3], Result& r)
 {
 	PRNG prng(r.p);
 
@@ -78,7 +78,7 @@ int main(int argc, char **argv)
 	p1.set(bayes_elo1, draw_elo);
 
 	// Pre-calculate LLR increment for each game result
-	const std::vector<double> llr_inc = {
+	const double llr_inc[3] = {
 		std::log(p1.loss / p0.loss),
 		std::log(p1.draw() / p0.draw()),
 		std::log(p1.win / p0.win)
