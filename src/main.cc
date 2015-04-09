@@ -15,6 +15,13 @@ struct Result {
 		p.set(bayes_elo, draw_elo);
 	}
 
+	static void header() {
+		std::cout << std::setw(8) << "Elo" << std::setw(10) << "BayesElo"
+			<< std::setw(10) << "P(win)" << std::setw(10) << "P(loss)" << std::setw(10) << "P(draw)"
+			<< std::setw(10) << "P(pass)" << std::setw(10) << "avg(stop)"
+			<< std::endl;
+	}
+
 	void print() const {
 		std::cout << std::fixed << std::setprecision(2)
 			<< std::setw(8) << elo << std::setw(10) << bayes_elo
@@ -88,10 +95,7 @@ int main(int argc, char **argv)
 		threads.push_back(std::thread(SPRT_average, nb_simu, llr_inc, std::ref(r)));
 
 	// Display results
-        std::cout << std::setw(8) << "Elo" << std::setw(10) << "BayesElo"
-                << std::setw(10) << "P(win)" << std::setw(10) << "P(loss)" << std::setw(10) << "P(draw)"
-                << std::setw(10) << "P(pass)" << std::setw(10) << "avg(stop)"
-                << std::endl;
+	Result::header();
 	for (size_t i = 0; i < results.size(); ++i) {
 		threads[i].join();
 		results[i].print();
