@@ -3,13 +3,13 @@
 
 void Probability::set(double bayes_elo, double draw_elo)
 {
-	win = 1 / (1 + std::pow(10.0, (-bayes_elo + draw_elo) / 400.0));
-	loss = 1 / (1 + std::pow(10.0, (bayes_elo + draw_elo) / 400.0));
+	_win = 1 / (1 + std::pow(10.0, (-bayes_elo + draw_elo) / 400.0));
+	_loss = 1 / (1 + std::pow(10.0, (bayes_elo + draw_elo) / 400.0));
 }
 
 double Probability::elo() const
 {
-	const double score = win + 0.5 * draw();
+	const double score = win() + 0.5 * draw();
 	return -400.0 * std::log10(1.0 / score - 1.0);
 }
 
@@ -68,5 +68,5 @@ uint64_t PRNG::rand64()
 int PRNG::game_result()
 {
 	double x = (double)rand64() / 0xffffffffffffffffULL;
-	return x < p.win ? WIN : (x < p.win + p.loss ? LOSS : DRAW);
+	return x < p.win() ? WIN : (x < p.win() + p.loss() ? LOSS : DRAW);
 }

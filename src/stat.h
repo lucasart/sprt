@@ -2,9 +2,12 @@
 #include <cstdint>
 #include <cmath>
 
-struct Probability {
-	double win, loss;
-	double draw() const { return 1.0 - win - loss; }
+class Probability {
+	double _win, _loss;
+public:
+	double win() const { return _win; }
+	double loss() const { return _loss; }
+	double draw() const { return 1.0 - _win - _loss; }
 	double elo() const;
 	void set(double bayes_elo, double draw_elo);
 };

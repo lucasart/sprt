@@ -25,8 +25,8 @@ struct Result {
 	void print() const {
 		std::cout << std::fixed << std::setprecision(2)
 			<< std::setw(8) << elo << std::setw(10) << bayes_elo
-			<< std::setprecision(4) << std::setw(10) << p.win << std::setw(10)
-			<< p.loss << std::setw(10) << p.draw() << std::setw(10) << pass
+			<< std::setprecision(4) << std::setw(10) << p.win() << std::setw(10)
+			<< p.loss() << std::setw(10) << p.draw() << std::setw(10) << pass
 			<< std::setprecision(0) << std::setw(10) << stop << std::endl;
 	}
 };
@@ -81,9 +81,9 @@ int main(int argc, char **argv)
 
 	// Pre-calculate LLR increment for each game result
 	const double llr_inc[3] = {
-		std::log(p1.loss / p0.loss),
+		std::log(p1.loss() / p0.loss()),
 		std::log(p1.draw() / p0.draw()),
-		std::log(p1.win / p0.win)
+		std::log(p1.win() / p0.win())
 	};
 
 	// Run SPRT_average() concurrently for each elo value
