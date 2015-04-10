@@ -1,7 +1,7 @@
 #include <iostream>
 #include <iomanip>
 #include <vector>
-#include <thread>
+#include <future>
 #include "stat.h"
 
 struct Result {
@@ -44,8 +44,9 @@ bool SPRT_one(const double llr_inc[3], PRNG& prng, unsigned& t)
 	return LLR >= bound;
 }
 
-void SPRT_average(unsigned nb_simu, const double llr_inc[3], Result& r)
+Result SPRT_average(unsigned nb_simu, const double llr_inc[3], double elo, double draw_elo)
 {
+	Result r(elo, draw_elo);
 	PRNG prng(r.p);
 
 	unsigned pass_cnt = 0;
@@ -59,6 +60,7 @@ void SPRT_average(unsigned nb_simu, const double llr_inc[3], Result& r)
 
 	r.pass = (double)pass_cnt / nb_simu;
 	r.stop = (double)sum_stop / nb_simu;
+	return r;
 }
 
 int main(int argc, char **argv)
@@ -84,22 +86,15 @@ int main(int argc, char **argv)
 		std::log(p1.win / p0.win)
 	};
 
-	// Prepare vector of results
-	std::vector<Result> results;
+	// Run SPRT_average() concurrently for each elo value
+	std::vector<std::future<Result>> results;
 	for (double elo = elo_min; elo <= elo_max; elo += elo_step)
-		results.push_back(Result(elo, draw_elo));
-
-	// Run iterations concurrently
-	std::vector<std::thread> threads;
-	for (auto& r : results)
-		threads.push_back(std::thread(SPRT_average, nb_simu, llr_inc, std::ref(r)));
+		results.push_back(std::async(std::launch::async, SPRT_average, nb_simu, llr_inc, elo, draw_elo));
 
 	// Display results
 	Result::header();
-	for (size_t i = 0; i < results.size(); ++i) {
-		threads[i].join();
-		results[i].print();
-	}
+	for (auto& r : results)
+		r.get().print();
 
 	return EXIT_SUCCESS;
 }
