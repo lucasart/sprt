@@ -35,6 +35,6 @@ Instead, modify the bounds (elo0,elo1).
 	    4.00      6.45    0.9989     19996      8936     12194     17459     24845     34464
 	    5.00      8.07    1.0000     14669      7393      9693     13227     18006     23812
 
-For example, +1 ELO with draw_elo = 250 corresponds to +3.23 BayesElo, and the
-SPRT(elo0=0,elo1=4) test has 36.5% probability to pass, with an average run of
-63,731 games. The last 5 columns are quantiles of the stopping time distribution.
+For example, +1 ELO with draw_elo = 250 corresponds to +1.61 BayesElo, and the
+SPRT(0,4) test has 36.5% probability to pass, with an average run of 63,731
+games. The last 5 columns are quantiles of the stopping time distribution.
