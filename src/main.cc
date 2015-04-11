@@ -2,12 +2,15 @@
 #include <iomanip>
 #include <vector>
 #include <future>
+#include <algorithm>
+#include <array>
 #include "stat.h"
 
 struct Result {
 	double elo, bayes_elo;
 	Probability p;
 	double pass, stop;
+	unsigned q10, q25, q50, q75, q90;
 
 	Result(double _elo, double draw_elo) {
 		elo = _elo;
@@ -17,21 +20,24 @@ struct Result {
 
 	static void header() {
 		std::cout << std::setw(8) << "Elo" << std::setw(10) << "BayesElo"
-			<< std::setw(10) << "P(win)" << std::setw(10) << "P(loss)" << std::setw(10) << "P(draw)"
-			<< std::setw(10) << "P(pass)" << std::setw(10) << "avg(stop)"
-			<< std::endl;
+			<< std::setw(10) << "%Pass" << std::setw(10) << "Avg run"
+			<< std::setw(10) << "Q10%" << std::setw(10) << "Q25%"
+			<< std::setw(10) << "Median" << std::setw(10) << "Q75%"
+			<< std::setw(10) << "Q90%" << std::endl;
 	}
 
 	void print() const {
 		std::cout << std::fixed << std::setprecision(2)
 			<< std::setw(8) << elo << std::setw(10) << bayes_elo
-			<< std::setprecision(4) << std::setw(10) << p.win() << std::setw(10)
-			<< p.loss() << std::setw(10) << p.draw() << std::setw(10) << pass
-			<< std::setprecision(0) << std::setw(10) << stop << std::endl;
+			<< std::setprecision(4) << std::setw(10) << pass
+			<< std::setprecision(0) << std::setw(10) << stop
+			<< std::setw(10) << q10 << std::setw(10) << q25
+			<< std::setw(10) << q50 << std::setw(10) << q75
+			<< std::setw(10) << q90 << std::endl;
 	}
 };
 
-bool SPRT_one(const double llr_inc[3], PRNG& prng, unsigned& t)
+bool SPRT_one(const std::array<double, 3> llr_inc, PRNG& prng, unsigned& t)
 {
 	// LLR (Log Likelyhood Ratio)
 	const double bound = std::log((1-0.05) / 0.05);
@@ -44,19 +50,26 @@ bool SPRT_one(const double llr_inc[3], PRNG& prng, unsigned& t)
 	return LLR >= bound;
 }
 
-Result SPRT_average(unsigned nb_simu, const double llr_inc[3], double elo, double draw_elo)
+Result SPRT_average(unsigned nb_simu, const std::array<double, 3> llr_inc, double elo, double draw_elo)
 {
 	Result r(elo, draw_elo);
 	PRNG prng(r.p);
 
-	unsigned pass_cnt = 0;
+	size_t pass_cnt = 0;
 	uint64_t sum_stop = 0;
 
-	for (unsigned simu = 0; simu < nb_simu; ++simu) {
-		unsigned t;
-		pass_cnt += SPRT_one(llr_inc, prng, t);
-		sum_stop += t;
+	std::vector<unsigned> t(nb_simu);
+	for (size_t s = 0; s < nb_simu; ++s) {
+		pass_cnt += SPRT_one(llr_inc, prng, t[s]);
+		sum_stop += t[s];
 	}
+
+	std::sort(t.begin(), t.end());
+	r.q10 = t[nb_simu / 10];
+	r.q25 = t[nb_simu / 4];
+	r.q50 = t[nb_simu / 2];
+	r.q75 = t[nb_simu * 3 / 4];
+	r.q90 = t[nb_simu * 9 / 10];
 
 	r.pass = (double)pass_cnt / nb_simu;
 	r.stop = (double)sum_stop / nb_simu;
@@ -80,7 +93,7 @@ int main(int argc, char **argv)
 	p1.set(bayes_elo1, draw_elo);
 
 	// Pre-calculate LLR increment for each game result
-	const double llr_inc[3] = {
+	const std::array<double, 3> llr_inc = {
 		std::log(p1.loss() / p0.loss()),
 		std::log(p1.draw() / p0.draw()),
 		std::log(p1.win() / p0.win())
