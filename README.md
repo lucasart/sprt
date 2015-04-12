@@ -26,7 +26,7 @@ Instead, modify the bounds (elo0,elo1).
 ### Example
 
 	$ ./sprt -1 5 1 20000 250 0 4
-	     Elo  BayesElo     %Pass   Avg run      Q10%      Q25%    Median      Q75%      Q90%
+	     Elo  BayesElo     %Pass   Avg run      Q10%      Q25%      Q50%      Q75%      Q90%
 	   -1.00     -1.61    0.0061     24261     10063     14010     20749     30534     42928
 	    0.00      0.00    0.0515     40145     13206     19796     31951     51913     77481
 	    1.00      1.61    0.3648     63731     16648     27113     48055     83959    130388

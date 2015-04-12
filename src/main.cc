@@ -4,13 +4,17 @@
 #include <future>
 #include <algorithm>
 #include <array>
+#include <sstream>
 #include "stat.h"
+
+// Quantiles of the stopping time distribution to display
+const std::vector<double> quantile_probability = {0.1, 0.25, 0.5, 0.75, 0.9};
 
 struct Result {
 	double elo, bayes_elo;
 	Probability p;
 	double pass, stop;
-	unsigned q10, q25, q50, q75, q90;
+	std::vector<double> quantile_value;
 
 	Result(double _elo, double draw_elo) {
 		elo = _elo;
@@ -20,20 +24,23 @@ struct Result {
 
 	static void header() {
 		std::cout << std::setw(8) << "Elo" << std::setw(10) << "BayesElo"
-			<< std::setw(10) << "%Pass" << std::setw(10) << "Avg run"
-			<< std::setw(10) << "Q10%" << std::setw(10) << "Q25%"
-			<< std::setw(10) << "Median" << std::setw(10) << "Q75%"
-			<< std::setw(10) << "Q90%" << std::endl;
+			<< std::setw(10) << "%Pass" << std::setw(10) << "Avg run";
+		for (auto& qp : quantile_probability) {
+			std::ostringstream os;
+			os << 'Q' << 100 * qp << '%';
+			std::cout << std::setw(10) << os.str();
+		}
+		std::cout << std::endl;
 	}
 
 	void print() const {
 		std::cout << std::fixed << std::setprecision(2)
 			<< std::setw(8) << elo << std::setw(10) << bayes_elo
 			<< std::setprecision(4) << std::setw(10) << pass
-			<< std::setprecision(0) << std::setw(10) << stop
-			<< std::setw(10) << q10 << std::setw(10) << q25
-			<< std::setw(10) << q50 << std::setw(10) << q75
-			<< std::setw(10) << q90 << std::endl;
+			<< std::setprecision(0) << std::setw(10) << stop;
+		for (auto& qv : quantile_value)
+			std::cout << std::setw(10) << qv;
+		std::cout << std::endl;
 	}
 };
 
@@ -65,11 +72,8 @@ Result SPRT_average(unsigned nb_simu, const std::array<double, 3> llr_inc, doubl
 	}
 
 	std::sort(t.begin(), t.end());
-	r.q10 = t[nb_simu / 10];
-	r.q25 = t[nb_simu / 4];
-	r.q50 = t[nb_simu / 2];
-	r.q75 = t[nb_simu * 3 / 4];
-	r.q90 = t[nb_simu * 9 / 10];
+	for (auto& qp : quantile_probability)
+		r.quantile_value.push_back(t[int(nb_simu * qp + 0.5)]);
 
 	r.pass = (double)pass_cnt / nb_simu;
 	r.stop = (double)sum_stop / nb_simu;
