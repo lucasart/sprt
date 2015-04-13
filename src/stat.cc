@@ -7,12 +7,6 @@ void Probability::set(double bayes_elo, double draw_elo)
 	_loss = 1 / (1 + std::pow(10.0, (bayes_elo + draw_elo) / 400.0));
 }
 
-double Probability::elo() const
-{
-	const double score = win() + 0.5 * draw();
-	return -400.0 * std::log10(1.0 / score - 1.0);
-}
-
 double invert(double elo, double draw_elo, double eps)
 {
 	// Establish bounds

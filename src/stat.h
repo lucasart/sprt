@@ -8,7 +8,8 @@ public:
 	double win() const { return _win; }
 	double loss() const { return _loss; }
 	double draw() const { return 1.0 - _win - _loss; }
-	double elo() const;
+	double score() const { return win() + 0.5 * draw(); }
+	double elo() const { return -400.0 * std::log10(1.0 / score() - 1.0); }
 	void set(double bayes_elo, double draw_elo);
 };
 
