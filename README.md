@@ -11,14 +11,15 @@ testing, using the BayesElo model.
 
 ### Syntax
 
-`sprt elo_min elo_max elo_step nb_simu draw_elo elo0 elo1`
+`sprt elo_min elo_max elo_step nb_simu draw_elo bayes_elo0 bayes_elo1`
 
 * `elo_min`, `elo_max`, `elo_step`: Range of elo values to test.
 * `nb_simu`: Number of simulation to run for every step
 * `draw_elo`: Parameter of the BayesElo model. To calibrate this value, use the
 following formula: `draw_elo = 200.log10[(1-w)/w.(1-l)/l]`, where `w` and `l`
 are the win and loss ratio
-* `elo0`, `elo1`: Hypothesis H0 and H1 of the test, **expressed in BayesElo**
+* `bayes_elo0`, `bayes_elo1`: Hypothesis H0 and H1 of the test, **expressed in
+   BayesElo**
 
 Note that alpha and beta are always 5%. You do not need to change these values.
 Instead, modify the bounds (elo0,elo1).
