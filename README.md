@@ -22,7 +22,7 @@ are the win and loss ratio
    BayesElo**
 
 Note that alpha and beta are always 5%. You do not need to change these values.
-Instead, modify the bounds (elo0,elo1).
+Instead, modify the bounds (`bayes_elo0`,`bayes_elo1`).
 
 ### Example
 
