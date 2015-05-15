@@ -7,7 +7,7 @@ testing, using the BayesElo model.
 
 * On Linux, simply run `make.sh`
 * On other POSIX compliant platforms, I don't expect many problems
-* Otherwise, requires a standard compliant C99 compiler (eg. mingw for Windows)
+* Otherwise, requires a standard compliant `C++11` compiler (eg. mingw for Windows)
 
 ### Syntax
 
