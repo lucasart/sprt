@@ -14,7 +14,7 @@ struct Result {
 	double elo, bayes_elo;
 	Probability p;
 	double pass, stop;
-	std::vector<double> quantile_value;
+	std::vector<size_t> quantile_value;
 
 	Result(double _elo, double draw_elo) {
 		elo = _elo;
@@ -44,7 +44,7 @@ struct Result {
 	}
 };
 
-bool SPRT_one(const std::array<double, 3> llr_inc, PRNG& prng, unsigned& t)
+bool SPRT_one(const std::array<double, 3> llr_inc, PRNG& prng, size_t& t)
 {
 	// LLR (Log Likelyhood Ratio)
 	const double bound = std::log((1-0.05) / 0.05);
@@ -57,15 +57,14 @@ bool SPRT_one(const std::array<double, 3> llr_inc, PRNG& prng, unsigned& t)
 	return LLR >= bound;
 }
 
-Result SPRT_average(unsigned nb_simu, const std::array<double, 3> llr_inc, double elo, double draw_elo)
+Result SPRT_average(size_t nb_simu, const std::array<double, 3> llr_inc, double elo, double draw_elo)
 {
 	Result r(elo, draw_elo);
 	PRNG prng(r.p);
 
-	size_t pass_cnt = 0;
-	uint64_t sum_stop = 0;
+	size_t pass_cnt = 0, sum_stop = 0;
 
-	std::vector<unsigned> t(nb_simu);
+	std::vector<size_t> t(nb_simu);
 	for (size_t s = 0; s < nb_simu; ++s) {
 		pass_cnt += SPRT_one(llr_inc, prng, t[s]);
 		sum_stop += t[s];
@@ -73,10 +72,10 @@ Result SPRT_average(unsigned nb_simu, const std::array<double, 3> llr_inc, doubl
 
 	std::sort(t.begin(), t.end());
 	for (auto& qp : quantile_probability)
-		r.quantile_value.push_back(t[int(nb_simu * qp + 0.5)]);
+		r.quantile_value.push_back(t[size_t(nb_simu * qp + 0.5)]);
 
-	r.pass = (double)pass_cnt / nb_simu;
-	r.stop = (double)sum_stop / nb_simu;
+	r.pass = double(pass_cnt) / nb_simu;
+	r.stop = double(sum_stop) / nb_simu;
 	return r;
 }
 
@@ -89,7 +88,7 @@ int main(int argc, char **argv)
 	}
 	const double elo_min = atof(argv[1]), elo_max = atof(argv[2]), elo_step = atof(argv[3]);
 	const double draw_elo = atof(argv[5]), bayes_elo0 = atof(argv[6]), bayes_elo1 = atof(argv[7]);
-	const unsigned nb_simu = atoll(argv[4]);
+	const size_t nb_simu = atoll(argv[4]);
 
 	// Calculate probability laws under H0 and H1
 	Probability p0, p1;
