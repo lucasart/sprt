@@ -1,7 +1,7 @@
 #include <algorithm>
 #include "sprt.h"
 
-namespace SPRT {
+namespace {
 
 bool one(const double llrInc[3], PRNG& prng, size_t& stop)
 {
@@ -16,9 +16,25 @@ bool one(const double llrInc[3], PRNG& prng, size_t& stop)
     return LLR >= bound;
 }
 
-Result average(size_t simulations, const double llrInc[3], double bayesElo, double drawElo,
-    const std::vector<double>& quantiles)
+} // namespace
+
+namespace SPRT {
+
+Result average(size_t simulations, double bayesElo, double drawElo, double bayesElo0,
+    double bayesElo1, const std::vector<double>& quantiles)
 {
+    // Calculate probability laws under H0 and H1
+    Probability p0, p1;
+    p0.set(bayesElo0, drawElo);
+    p1.set(bayesElo1, drawElo);
+
+    // Pre-calculate LLR increment for each game result
+    const double llrInc[3] = {
+        std::log(p1.loss / p0.loss),
+        std::log(p1.draw() / p0.draw()),
+        std::log(p1.win / p0.win)
+    };
+
     Result r(bayesElo, drawElo);
     PRNG prng(r.p);
 

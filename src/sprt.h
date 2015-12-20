@@ -11,8 +11,7 @@ struct Result {
     Result(double bayesElo, double drawElo) { p.set(bayesElo, drawElo); }
 };
 
-bool one(const double llrInc[3], PRNG& prng, size_t& stop);
-Result average(size_t simulations, const double llrInc[3], double bayesElo, double drawElo,
-    const std::vector<double>& quantiles);
+Result average(size_t simulations, double bayesElo, double drawElo, double bayesElo0,
+    double bayesElo1, const std::vector<double>& quantiles);
 
 } // namespace SPRT
