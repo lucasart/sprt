@@ -5,38 +5,35 @@ testing, using the BayesElo model.
 
 ### Compiling
 
-* On Linux, simply run `make.sh`
-* On other POSIX compliant platforms, I don't expect many problems
-* Otherwise, requires a standard compliant `C++11` compiler (eg. mingw for Windows)
+* Code should compile with any `C++11` capable compiler (no dependancy).
+* On Linux, or POSIX systems with g++, run `make.sh`.
 
 ### Syntax
 
-`sprt elo_min elo_max elo_step nb_simu draw_elo bayes_elo0 bayes_elo1`
+`sprt BayesEloMin BayesEloMax BayesEloStep Simulations DrawElo BayesElo0 BayesElo1`
 
-* `elo_min`, `elo_max`, `elo_step`: Range of elo values to test.
-* `nb_simu`: Number of simulation to run for every step
-* `draw_elo`: Parameter of the BayesElo model. To calibrate this value, use the
-following formula: `draw_elo = 200.log10[(1-w)/w.(1-l)/l]`, where `w` and `l`
-are the win and loss ratio
-* `bayes_elo0`, `bayes_elo1`: Hypothesis H0 and H1 of the test, **expressed in
-   BayesElo**
+* `BayesEloMin`, `BayesEloMax`, `BayesEloStep`: Range of elo values to test.
+* `Simulations`: Number of simulation to run for every step.
+* `DrawElo`: Parameter of the BayesElo model. To calibrate this value, use the
+following formula: `DrawElo = 200.log10[(1-w)/w.(1-l)/l]`, where `w` and `l`
+are the win and loss ratio.
+* `BayesElo0`, `BayesElo1`: Hypothesis H0 and H1 of the test.
 
 Note that alpha and beta are always 5%. You do not need to change these values.
-Instead, modify the bounds (`bayes_elo0`,`bayes_elo1`).
+Instead, modify the bounds (`BayesElo0`,`BayesElo1`).
 
 ### Example
 
 	$ ./sprt -1 5 1 20000 250 0 4
-	     Elo  BayesElo     %Pass   Avg run      Q10%      Q25%      Q50%      Q75%      Q90%
-	   -1.00     -1.61    0.0061     24261     10063     14010     20749     30534     42928
-	    0.00      0.00    0.0515     40145     13206     19796     31951     51913     77481
-	    1.00      1.61    0.3648     63731     16648     27113     48055     83959    130388
-	    2.00      3.23    0.8592     51876     15017     23537     39990     68310    104624
-	    3.00      4.84    0.9855     30237     11339     16339     25137     38463     55596
-	    4.00      6.45    0.9989     19996      8936     12194     17459     24845     34464
-	    5.00      8.07    1.0000     14669      7393      9693     13227     18006     23812
+	BayesElo     Elo   %Pass     Avg    Q25%    Q50%    Q75%    Q90%
+	   -1.00   -0.62  0.0128   28982   15842   24199   36893   53051
+	    0.00   -0.00  0.0515   40145   19796   31951   51913   77481
+	    1.00    0.62  0.1888   55858   24872   43094   73796  113419
+	    2.00    1.24  0.5031   65163   27763   48987   85880  134951
+	    3.00    1.86  0.8149   55612   24676   42561   73343  112581
+	    4.00    2.48  0.9506   39821   19647   31877   51587   76262
+	    5.00    3.10  0.9875   28835   15796   24049   36828   52699
 
-For example, +1 ELO with `draw_elo` = 250 corresponds to +1.61 BayesElo, and
-the SPRT(0,4) test has 36.5% probability to pass, with an average run of
-63,731 games. The last 5 columns are quantiles of the stopping time
-distribution.
+For example, +2 BayesElo with DrawElo = 250 corresponds to +1.24 Elo, and the
+SPRT(0,4) test has 50.31% chance to pass, with an average run of 63731 games.
+The remaining columns are quantiles of the stopping time distribution.

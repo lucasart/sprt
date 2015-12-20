@@ -2,30 +2,27 @@
 #include <cstdint>
 #include <cmath>
 
-class Probability {
-	double _win, _loss;
-public:
-	double win() const { return _win; }
-	double loss() const { return _loss; }
-	double draw() const { return 1.0 - _win - _loss; }
-	double score() const { return win() + 0.5 * draw(); }
-	double elo() const { return -400.0 * std::log10(1.0 / score() - 1.0); }
-	void set(double bayes_elo, double draw_elo);
-};
+struct Probability {
+    double win, loss;
+    double draw() const { return 1 - win - loss; }
 
-// Invert the BayesElo model to get: bayes_elo = f(elo, draw_elo). This cannot
-// be done analytically, so we need to do it by dichotomy (eps is the precision
-// required).
-double invert(double elo, double draw_elo, double eps = 1e-4);
+    double score() const { return win + draw() / 2; }
+    double elo()   const { return -400 * std::log10(1 / score() - 1); }
+
+    double draw_elo()  const { return 200 * std::log10((1 - win) / win * (1 - loss) / loss); }
+    double bayes_elo() const { return 200 * std::log10(win / loss * (1 - loss) / (1 - win)); }
+
+    void set(double bayesElo, double drawElo);
+};
 
 enum {LOSS, DRAW, WIN};
 
 // Game result generator
 class PRNG {
-	uint64_t a, b, c, d;
-	Probability p;
-	uint64_t rand64();
+    uint64_t a, b, c, d;
+    Probability p;
+    uint64_t rand64();
 public:
-	PRNG(const Probability& p);
-	int game_result();
+    PRNG(const Probability& p);
+    int game_result();
 };
