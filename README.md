@@ -35,6 +35,6 @@ Instead, modify the bounds (`BayesElo0`,`BayesElo1`).
 	    4.00    2.48  0.9506   39821   19647   31877   51575   76254
 	    5.00    3.10  0.9875   28835   15796   24049   36825   52675
 
-For example, +2 BayesElo with DrawElo = 250 corresponds to +1.24 Elo, and the
-SPRT(0,4) test has 50.31% chance to pass, with an average run of 63731 games.
+For example, +3 BayesElo with DrawElo = 250 corresponds to +1.86 Elo, and the
+SPRT(0,4) test has 81.49% chance to pass, with an average run of 55612 games.
 The remaining columns are quantiles of the stopping time distribution.

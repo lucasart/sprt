@@ -35,7 +35,8 @@ Result average(size_t simulations, double bayesElo, double drawElo, double bayes
         std::log(p1.win / p0.win)
     };
 
-    Result r(bayesElo, drawElo);
+    Result r;
+    r.p.set(bayesElo, drawElo);
     PRNG prng(r.p);
 
     size_t passCount = 0, stopSum = 0;
