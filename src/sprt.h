@@ -5,7 +5,7 @@ namespace SPRT {
 
 struct Result {
     Probability p;
-    double pass, stop;
+    double passRate, stopAvg;
     std::vector<size_t> quantileValue;
 };
 

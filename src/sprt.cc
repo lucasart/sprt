@@ -35,26 +35,28 @@ Result average(size_t simulations, double bayesElo, double drawElo, double bayes
         std::log(p1.win / p0.win)
     };
 
+    // Prepare result
     Result r;
     r.p.set(bayesElo, drawElo);
     PRNG prng(r.p);
 
+    // Run simulations
     size_t passCount = 0, stopSum = 0;
-
     std::vector<size_t> stop(simulations);
     for (size_t s = 0; s < simulations; ++s) {
         passCount += one(llrInc, prng, stop[s]);
         stopSum += stop[s];
     }
 
+    // Collect quantiles
     if (!quantiles.empty()) {
         std::sort(stop.begin(), stop.end());
         for (auto& qp : quantiles)
             r.quantileValue.push_back(stop[(simulations - 1) * qp + 0.5]);
     }
 
-    r.pass = double(passCount) / simulations;
-    r.stop = double(stopSum) / simulations;
+    r.passRate = double(passCount) / simulations;
+    r.stopAvg  = double(stopSum) / simulations;
     return r;
 }
 

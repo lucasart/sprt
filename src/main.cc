@@ -2,7 +2,6 @@
 #include <iomanip>
 #include <vector>
 #include <future>
-#include <sstream>
 #include "sprt.h"
 
 int main(int argc, char **argv)
@@ -27,23 +26,20 @@ int main(int argc, char **argv)
             drawElo, bayesElo0, bayesElo1, quantiles));
 
     // Display header
-    std::cout << std::setw(8) << "BayesElo" << std::setw(8) << "Elo" << std::setw(8) << "%Pass"
-        << std::setw(8) << "Avg";
-    for (auto& qp : quantiles) {
-        std::ostringstream os;
-        os << 'Q' << 100 * qp << '%';
-        std::cout << std::setw(8) << os.str();
-    }
+    std::cout << "BayesElo" << '\t' << "Elo" << '\t' << "%Pass"
+        << '\t' << "Avg";
+    for (auto& qp : quantiles)
+        std::cout << "\tQ" << 100 * qp << '%';
     std::cout << std::endl;
 
     // Display results (when ready)
     for (auto& r : results) {
         const SPRT::Result _r = r.get();
-        std::cout << std::fixed << std::setprecision(2) << std::setw(8) << _r.p.bayes_elo()
-            << std::setw(8) << _r.p.elo() << std::setprecision(4) << std::setw(8) << _r.pass
-            << std::setprecision(0) << std::setw(8) << _r.stop;
+        std::cout << std::fixed << std::setprecision(2) << _r.p.bayes_elo()
+            << '\t' << _r.p.elo() << std::setprecision(4) << '\t' << _r.passRate
+            << std::setprecision(0) << '\t' << _r.stopAvg;
         for (auto& qv : _r.quantileValue)
-            std::cout << std::setw(8) << qv;
+            std::cout << '\t' << qv;
         std::cout << std::endl;
     }
 
